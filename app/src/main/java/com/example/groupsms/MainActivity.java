@@ -54,6 +54,12 @@ public class MainActivity extends AppCompatActivity {
                 myDataset.add(num.getText().toString());
                 Log.d("data", "Data add : " + myDataset.get(0));
 
+                RecyclerView recyclerView = findViewById(R.id.recyclerView);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+                MyAdapter adapter = new MyAdapter(myDataset);
+                recyclerView.setAdapter(adapter);
+
             }
         });
 
@@ -82,11 +88,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        MyAdapter adapter = new MyAdapter(myDataset);
-        recyclerView.setAdapter(adapter);
 
 
     }
