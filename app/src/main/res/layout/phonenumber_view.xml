@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:padding="10dp">
 
     <CheckBox
         android:id="@+id/checkBox"
@@ -16,10 +17,10 @@
     <TextView
         android:id="@+id/adapterTextView"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:text="1234567890"
-        android:textSize="30dp"
+        android:textSize="20sp"
         android:layout_weight="1"/>
 
 
