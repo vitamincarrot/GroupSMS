@@ -10,11 +10,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -22,27 +23,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import jxl.Cell;
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.WorkbookSettings;
+import jxl.read.biff.BiffException;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
     EditText num, msg;
     Button sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1;
-    Button btnSDCard;
     String inputText1 = "Text1";
     RecyclerView recyclerView;
-    private String[] FilePathStrings;
-    private String[] FileNameStrings;
-    private File[] listFile;
-    File file;
     /*public RecyclerView.Adapter mAdapter;
     public RecyclerView.LayoutManager layoutManager;*/
     ArrayList<String> myDataset = new ArrayList<>();
     ArrayList<String> checkText = new ArrayList<>();
-    ArrayList<String> pathHistory;
-    String lastDirectory;
-    int count = 0;
-    ListView lvInternalStorage;
+    File file;
+    Workbook workbook;
+    List<String> excelTitle, excelContent, excelThumb;
+    String path = "/data/data/Download/androidExcelTest.xls";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,12 @@ public class MainActivity extends AppCompatActivity {
         checkDelBtn = findViewById(R.id.checkDel);
         inputButton1 = findViewById(R.id.inputText1);
 
+        excelTitle = new ArrayList<>();
+        excelContent = new ArrayList<>();
+        excelThumb = new ArrayList<>();
+        Log.d("MainActivity_Log", "(onCreate) " + path);
+
+        file = new File(path);
 
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -66,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         checkForSmsPermission();
+        excelRead(file);
 
         inputButton1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -235,6 +243,39 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Log.d("MainActivity_Log", "(onRequestPermissionsResult) Permission has been denied or request cancelled");
                 disableSmsButton();
+            }
+        }
+    }
+
+    public void excelRead(File file) {
+        WorkbookSettings ws = new WorkbookSettings();
+        ws.setGCDisabled(true);
+        if (file != null) {
+            try {
+                workbook = Workbook.getWorkbook(file);
+                Sheet sheet = workbook.getSheet(0);
+                for (int i = 0; i < sheet.getRows(); i++) {
+                    Cell[] row = sheet.getRow(i);
+                    excelTitle.add(row[0].getContents());
+                    excelContent.add(row[1].getContents());
+                    excelThumb.add(row[2].getContents());
+
+                }
+                for (int i = 0; i < excelTitle.size(); i++) {
+                    Log.d("MainActivity_Log", "(excelRead) " + excelTitle.get(i));
+                    Log.d("MainActivity_Log", "(excelRead) " + excelContent.get(i));
+                    Log.d("MainActivity_Log", "(excelRead) " + excelThumb.get(i));
+
+                }
+
+            } catch (IOException e) {
+                Log.d("MainActivity_Log", "(excelRead) IOException" + e);
+
+                e.printStackTrace();
+            } catch (BiffException e) {
+                Log.d("MainActivity_Log", "(excelRead) BiffException" + e);
+
+                e.printStackTrace();
             }
         }
     }
