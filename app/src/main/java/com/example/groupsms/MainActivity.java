@@ -1,9 +1,15 @@
 package com.example.groupsms;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
@@ -13,8 +19,14 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -33,17 +45,20 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
     EditText num, msg;
-    Button sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1;
-    String inputText1 = "Text1";
+    Button sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1, save;
+    String inputText1 = "Text1", sdPath;
     RecyclerView recyclerView;
     /*public RecyclerView.Adapter mAdapter;
     public RecyclerView.LayoutManager layoutManager;*/
     ArrayList<String> myDataset = new ArrayList<>();
     ArrayList<String> checkText = new ArrayList<>();
-    File file;
+    FileInputStream file;
     Workbook workbook;
     List<String> excelTitle, excelContent, excelThumb;
-    String path = "/data/data/Download/androidExcelTest.xls";
+    String path = "/storage/8057-08E2/Download/androidExcelTest";
+    private int WRITE_REQUEST_CODE = 43;
+    private ParcelFileDescriptor pfd;
+    private FileOutputStream fileOutputStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,13 +73,20 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         checkDelBtn = findViewById(R.id.checkDel);
         inputButton1 = findViewById(R.id.inputText1);
+        save = findViewById(R.id.save);
 
         excelTitle = new ArrayList<>();
         excelContent = new ArrayList<>();
         excelThumb = new ArrayList<>();
         Log.d("MainActivity_Log", "(onCreate) " + path);
 
-        file = new File(path);
+        try {
+            file = new FileInputStream(path);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.d("MainActivity_Log", "(onCreate) " + e);
+
+        }
 
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -74,6 +96,13 @@ public class MainActivity extends AppCompatActivity {
 
         checkForSmsPermission();
         excelRead(file);
+
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StartRecord();
+            }
+        });
 
         inputButton1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,7 +153,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         //"+"버튼 클릭시 번호 리스트 추가
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -170,6 +198,72 @@ public class MainActivity extends AppCompatActivity {
                 checkForSmsPermission();
             }
         });
+
+    }
+
+    public void StartRecord() {
+        try {
+            long now = System.currentTimeMillis();
+            Date date = new Date(now);
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat sdfNow
+                    = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String formatDate = sdfNow.format(date);
+
+
+            /**
+             * SAF 파일 편집
+             * */
+            String fileName = formatDate + ".txt";
+
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_TITLE, fileName);
+
+            startActivityForResult(intent, WRITE_REQUEST_CODE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == WRITE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            Log.d("MainActivity_Log", "(onActivityResult) WRITE_REQUEST_CODE");
+
+            Uri uri = data.getData();
+            Log.d("MainActivity_Log", "(onActivityResult) " + uri);
+
+            addText(uri);
+        }
+    }
+
+    public void addText(Uri uri) {
+        try {
+            pfd = this.getContentResolver().openFileDescriptor(uri, "w");
+            Log.d("MainActivity_Log", "(addText) " + pfd);
+
+            fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
+            putString("Test!");
+            FinishRecord();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void putString(String st) throws IOException {
+        if (fileOutputStream != null) fileOutputStream.write(st.getBytes());
+    }
+
+    public void FinishRecord() throws IOException {
+        Toast.makeText(getApplicationContext(), "저장되었습니다.", Toast.LENGTH_LONG).show();
+        fileOutputStream.close();
+        pfd.close();
 
     }
 
@@ -247,7 +341,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void excelRead(File file) {
+
+    public void excelRead(FileInputStream file) {
         WorkbookSettings ws = new WorkbookSettings();
         ws.setGCDisabled(true);
         if (file != null) {
@@ -279,5 +374,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 
 }
