@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,13 +53,12 @@ public class MainActivity extends AppCompatActivity {
     public RecyclerView.LayoutManager layoutManager;*/
     ArrayList<String> myDataset = new ArrayList<>();
     ArrayList<String> checkText = new ArrayList<>();
-    FileInputStream file;
     Workbook workbook;
     List<String> excelTitle, excelContent, excelThumb;
-    String path = "/storage/8057-08E2/Download/androidExcelTest";
     private int WRITE_REQUEST_CODE = 43;
     private ParcelFileDescriptor pfd;
     private FileOutputStream fileOutputStream;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,15 +78,8 @@ public class MainActivity extends AppCompatActivity {
         excelTitle = new ArrayList<>();
         excelContent = new ArrayList<>();
         excelThumb = new ArrayList<>();
-        Log.d("MainActivity_Log", "(onCreate) " + path);
 
-        try {
-            file = new FileInputStream(path);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Log.d("MainActivity_Log", "(onCreate) " + e);
 
-        }
 
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -95,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         checkForSmsPermission();
-        excelRead(file);
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -203,22 +195,27 @@ public class MainActivity extends AppCompatActivity {
 
     public void StartRecord() {
         try {
-            long now = System.currentTimeMillis();
+            /*long now = System.currentTimeMillis();
             Date date = new Date(now);
             @SuppressLint("SimpleDateFormat") SimpleDateFormat sdfNow
                     = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String formatDate = sdfNow.format(date);
+*/
 
 
             /**
              * SAF 파일 편집
              * */
+/*
             String fileName = formatDate + ".txt";
+*/
 
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("*/*");
+/*
             intent.putExtra(Intent.EXTRA_TITLE, fileName);
+*/
 
             startActivityForResult(intent, WRITE_REQUEST_CODE);
         } catch (Exception e) {
@@ -236,7 +233,17 @@ public class MainActivity extends AppCompatActivity {
             Uri uri = data.getData();
             Log.d("MainActivity_Log", "(onActivityResult) " + uri);
 
+            try {
+                InputStream file = getApplicationContext().getContentResolver().openInputStream(uri);
+                excelRead(file);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Log.d("MainActivity_Log", "(onCreate) " + e);
+
+            }
+/*
             addText(uri);
+*/
         }
     }
 
@@ -342,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void excelRead(FileInputStream file) {
+    public void excelRead(InputStream file) {
         WorkbookSettings ws = new WorkbookSettings();
         ws.setGCDisabled(true);
         if (file != null) {
