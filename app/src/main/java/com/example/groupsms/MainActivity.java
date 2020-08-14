@@ -1,15 +1,12 @@
 package com.example.groupsms;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
@@ -18,16 +15,11 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -41,23 +33,29 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
 import jxl.read.biff.BiffException;
+import jxl.write.Label;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
+import jxl.write.biff.RowsExceededException;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
     EditText num, msg;
-    Button sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1, save;
-    String inputText1 = "Text1", sdPath;
+    Button sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1, save, createBtn;
+    String inputText1 = "Text1";
     RecyclerView recyclerView;
     /*public RecyclerView.Adapter mAdapter;
     public RecyclerView.LayoutManager layoutManager;*/
-    ArrayList<String> myDataset = new ArrayList<>();
+    ArrayList<String> myDataSet = new ArrayList<>();
     ArrayList<String> checkText = new ArrayList<>();
     Workbook workbook;
     List<String> excelTitle, excelContent, excelThumb;
-    private int WRITE_REQUEST_CODE = 43;
-    private ParcelFileDescriptor pfd;
-    private FileOutputStream fileOutputStream;
+    private int READ_REQUEST_CODE = 43;
+    private int WRITE_REQUEST_CODE = 44;
+//    private ParcelFileDescriptor pfd;
+//    private FileOutputStream fileOutputStream;
 
 
     @Override
@@ -74,17 +72,17 @@ public class MainActivity extends AppCompatActivity {
         checkDelBtn = findViewById(R.id.checkDel);
         inputButton1 = findViewById(R.id.inputText1);
         save = findViewById(R.id.save);
+        createBtn = findViewById(R.id.createBtn);
 
         excelTitle = new ArrayList<>();
         excelContent = new ArrayList<>();
         excelThumb = new ArrayList<>();
 
 
-
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
-        final MyAdapter adapter = new MyAdapter(myDataset);
+        final MyAdapter adapter = new MyAdapter(myDataSet);
         recyclerView.setAdapter(adapter);
 
         checkForSmsPermission();
@@ -92,7 +90,15 @@ public class MainActivity extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                StartRecord();
+                StartRead();
+            }
+        });
+
+        createBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StartWrite();
+
             }
         });
 
@@ -136,10 +142,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 checkText = adapter.checkPos;
                 for (int i = 0; i < checkText.size(); i++) {
-                    myDataset.remove(checkText.get(i));
+                    myDataSet.remove(checkText.get(i));
                 }
 
-                adapter.checkPos.removeAll(adapter.checkPos);
+                adapter.checkPos.removeAll(checkText);
                 adapter.notifyDataSetChanged();
 
             }
@@ -151,8 +157,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 if (num.length() > 0) {
-                    myDataset.add(num.getText().toString());
-                    Log.d("MainActivity_Log", "(addBtn) Data add : " + myDataset.get(0));
+                    myDataSet.add(num.getText().toString());
+                    Log.d("MainActivity_Log", "(addBtn) Data add : " + myDataSet.get(0));
                     adapter.notifyDataSetChanged();
                     num.getText().clear();
 
@@ -170,10 +176,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String inputMsgText = msg.getText().toString();
-                if (myDataset.size() > 0 && inputMsgText.length() > 0) {
-                    for (int i = 0; i < myDataset.size(); i++) {
-                        sendSMS(myDataset.get(i), inputMsgText);
-                        toastMsgShort(myDataset.get(i) + "\n" + inputMsgText);
+                if (myDataSet.size() > 0 && inputMsgText.length() > 0) {
+                    for (int i = 0; i < myDataSet.size(); i++) {
+                        sendSMS(myDataSet.get(i), inputMsgText);
+                        toastMsgShort(myDataSet.get(i) + "\n" + inputMsgText);
 
                     }
 
@@ -193,7 +199,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void StartRecord() {
+    //불러올 파일 선택창 열기
+    public void StartRead() {
         try {
             /*long now = System.currentTimeMillis();
             Date date = new Date(now);
@@ -203,51 +210,82 @@ public class MainActivity extends AppCompatActivity {
 */
 
 
-            /**
+            /*
              * SAF 파일 편집
              * */
 /*
             String fileName = formatDate + ".txt";
 */
 
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            Intent intent = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            }
+            assert intent != null;
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("*/*");
 /*
             intent.putExtra(Intent.EXTRA_TITLE, fileName);
 */
 
-            startActivityForResult(intent, WRITE_REQUEST_CODE);
+            startActivityForResult(intent, READ_REQUEST_CODE);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
+    //저장할 파일 선택창 열기
+    public void StartWrite() {
+        Intent intent = null;
+        String fileName = "Sample.xls";
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        }
+        assert intent != null;
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_TITLE, fileName);
+
+        startActivityForResult(intent, WRITE_REQUEST_CODE);
+    }
+
+    //선택된 파일 정보 받아오기
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == WRITE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            Log.d("MainActivity_Log", "(onActivityResult) WRITE_REQUEST_CODE");
+        if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            Log.d("MainActivity_Log", "(onActivityResult) READ_REQUEST_CODE");
 
             Uri uri = data.getData();
             Log.d("MainActivity_Log", "(onActivityResult) " + uri);
 
             try {
-                InputStream file = getApplicationContext().getContentResolver().openInputStream(uri);
+                InputStream file = null;
+                if (uri != null) {
+                    file = getApplicationContext().getContentResolver().openInputStream(uri);
+                }
                 excelRead(file);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 Log.d("MainActivity_Log", "(onCreate) " + e);
 
             }
-/*
-            addText(uri);
-*/
+        } else if (requestCode == WRITE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            Uri uri = data.getData();
+            try {
+                if (uri != null) {
+                    OutputStream outputStream = getApplication().getContentResolver().openOutputStream(uri);
+                    excelCreate(outputStream);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 
-    public void addText(Uri uri) {
+/*    public void addText(Uri uri) {
         try {
             pfd = this.getContentResolver().openFileDescriptor(uri, "w");
             Log.d("MainActivity_Log", "(addText) " + pfd);
@@ -261,25 +299,25 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    public void putString(String st) throws IOException {
+    /*public void putString(String st) throws IOException {
         if (fileOutputStream != null) fileOutputStream.write(st.getBytes());
-    }
+    }*/
 
-    public void FinishRecord() throws IOException {
+  /*  public void FinishRecord() throws IOException {
         Toast.makeText(getApplicationContext(), "저장되었습니다.", Toast.LENGTH_LONG).show();
         fileOutputStream.close();
         pfd.close();
 
-    }
+    }*/
 
+    //중간에 텍스트 삽입하기
     private void insertSomeText(String st) {
         int start = Math.max(msg.getSelectionStart(), 0);
         int end = Math.max(msg.getSelectionEnd(), 0);
         msg.getText().replace(Math.min(start, end), Math.max(start, end), st);
     }
-
 
     //SMS 메세지 보내기
     private void sendSMS(String phoneNum, String message) {
@@ -348,8 +386,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    public void excelRead(InputStream file) {
+    // 엑셀파일 불러오기
+    private void excelRead(InputStream file) {
         WorkbookSettings ws = new WorkbookSettings();
         ws.setGCDisabled(true);
         if (file != null) {
@@ -380,6 +418,42 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    // 샘플 엑셀파일 생성하기
+    private void excelCreate(OutputStream outputStream) {
+        try {
+            WritableWorkbook workbook = Workbook.createWorkbook(outputStream);
+            WritableSheet sheet = workbook.createSheet("example", 0);
+            Label label;
+            label = new Label(0, 0, "Text1");
+            sheet.addCell(label);
+
+            label = new Label(1, 0, "Text2");
+            sheet.addCell(label);
+
+            label = new Label(2, 0, "Text3");
+            sheet.addCell(label);
+
+            label = new Label(3, 0, "Text4");
+            sheet.addCell(label);
+
+            label = new Label(4, 0, "Text5");
+            sheet.addCell(label);
+
+            workbook.write();
+            workbook.close();
+            toastMsgLong("Excel file create complete!");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (RowsExceededException e) {
+            e.printStackTrace();
+        } catch (WriteException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
 
