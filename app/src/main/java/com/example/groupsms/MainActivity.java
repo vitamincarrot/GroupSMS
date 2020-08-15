@@ -51,9 +51,11 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> myDataSet = new ArrayList<>();
     ArrayList<String> checkText = new ArrayList<>();
     Workbook workbook;
-    List<String> excelTitle, excelContent, excelThumb;
+    List<String> text1, text2, text3, text4, text5;
     private int READ_REQUEST_CODE = 43;
     private int WRITE_REQUEST_CODE = 44;
+    String[] mReadArray;
+    int mRows, mColumns;
 //    private ParcelFileDescriptor pfd;
 //    private FileOutputStream fileOutputStream;
 
@@ -74,9 +76,11 @@ public class MainActivity extends AppCompatActivity {
         save = findViewById(R.id.save);
         createBtn = findViewById(R.id.createBtn);
 
-        excelTitle = new ArrayList<>();
-        excelContent = new ArrayList<>();
-        excelThumb = new ArrayList<>();
+        text1 = new ArrayList<>();
+        text2 = new ArrayList<>();
+        text3 = new ArrayList<>();
+        text4 = new ArrayList<>();
+        text5 = new ArrayList<>();
 
 
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
@@ -394,30 +398,39 @@ public class MainActivity extends AppCompatActivity {
             try {
                 workbook = Workbook.getWorkbook(file);
                 Sheet sheet = workbook.getSheet(0);
-                for (int i = 0; i < sheet.getRows(); i++) {
-                    Cell[] row = sheet.getRow(i);
-                    excelTitle.add(row[0].getContents());
-                    excelContent.add(row[1].getContents());
-                    excelThumb.add(row[2].getContents());
+                Log.d("MainActivity_Log", "(excelRead getRows) " + sheet.getRows());
+                mRows = sheet.getRows();
+                mColumns = sheet.getColumns();
+                if (mColumns < 5) {
+                    for (int i = 0; i < mRows; i++) {
+                        for (int j = 0; j < 5; j++) {
+                            Cell cell = sheet.getCell(j, i);
+                            String temp = cell.getContents();
+                            Log.d("MainActivity_Log", "(excelRead getRows) " + "(" + i + "," + j + ")" + temp);
+                        }
 
+                    }
+                } else {
+                    toastMsgLong("문자 개수가 너무 많습니다. ");
                 }
-                for (int i = 0; i < excelTitle.size(); i++) {
-                    Log.d("MainActivity_Log", "(excelRead) " + excelTitle.get(i));
-                    Log.d("MainActivity_Log", "(excelRead) " + excelContent.get(i));
-                    Log.d("MainActivity_Log", "(excelRead) " + excelThumb.get(i));
 
-                }
 
             } catch (IOException e) {
-                Log.d("MainActivity_Log", "(excelRead) IOException" + e);
-
                 e.printStackTrace();
             } catch (BiffException e) {
-                Log.d("MainActivity_Log", "(excelRead) BiffException" + e);
-
                 e.printStackTrace();
             }
+           /* for (int i = 0; i < text1.size(); i++) {
+                Log.d("MainActivity_Log", "(excelRead) " + text1.get(i));
+                Log.d("MainActivity_Log", "(excelRead) " + text2.get(i));
+                Log.d("MainActivity_Log", "(excelRead) " + text3.get(i));
+                Log.d("MainActivity_Log", "(excelRead) " + text4.get(i));
+                Log.d("MainActivity_Log", "(excelRead) " + text5.get(i));
+
+            }*/
+
         }
+
     }
 
     // 샘플 엑셀파일 생성하기
