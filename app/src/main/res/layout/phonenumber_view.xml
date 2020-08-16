@@ -4,24 +4,70 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:padding="10dp">
 
     <CheckBox
         android:id="@+id/checkBox"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_weight="5"
         android:focusable="auto" />
 
     <TextView
-        android:id="@+id/adapterTextView"
-        android:layout_width="match_parent"
+        android:id="@+id/listName"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:text="1234567890"
-        android:textSize="20sp"
-        android:layout_weight="1"/>
+        android:text="박지우"
+        android:textSize="15dp"/>
+
+    <TextView
+        android:id="@+id/listNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="01042761727"
+        android:textSize="15dp"
+        android:layout_marginLeft="5dp"/>
+
+    <TextView
+        android:id="@+id/listText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Text1"
+        android:textSize="15dp"
+        android:layout_marginLeft="5dp"/>
+
+    <TextView
+        android:id="@+id/listText2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Text2"
+        android:textSize="15dp"
+        android:layout_marginLeft="5dp"/>
+
+    <TextView
+        android:id="@+id/listText3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Text3"
+        android:textSize="15dp"
+        android:layout_marginLeft="5dp"/>
+
+    <TextView
+        android:id="@+id/listText4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Text4"
+        android:textSize="15dp"
+        android:layout_marginLeft="5dp"/>
+
+    <TextView
+        android:id="@+id/listText5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Text5"
+        android:textSize="15dp"
+        android:layout_marginLeft="5dp"/>
 
 
 

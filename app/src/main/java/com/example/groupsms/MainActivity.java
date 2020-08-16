@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
     EditText num, msg;
-    Button sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1, save, createBtn;
-    String inputText1 = "Text1";
+    Button sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1, readBtn, createBtn;
+    String inputText1, inputText2, inputText3, inputText4, inputText5;
     RecyclerView recyclerView;
     /*public RecyclerView.Adapter mAdapter;
     public RecyclerView.LayoutManager layoutManager;*/
@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
     List<String> text1, text2, text3, text4, text5;
     private int READ_REQUEST_CODE = 43;
     private int WRITE_REQUEST_CODE = 44;
-    String[] mReadArray;
     int mRows, mColumns;
 //    private ParcelFileDescriptor pfd;
 //    private FileOutputStream fileOutputStream;
@@ -73,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         checkDelBtn = findViewById(R.id.checkDel);
         inputButton1 = findViewById(R.id.inputText1);
-        save = findViewById(R.id.save);
+        readBtn = findViewById(R.id.readBtn);
         createBtn = findViewById(R.id.createBtn);
 
         text1 = new ArrayList<>();
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         checkForSmsPermission();
 
-        save.setOnClickListener(new View.OnClickListener() {
+        readBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 StartRead();
@@ -167,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                     num.getText().clear();
 
                 } else {
-                    toastMsgShort("Enter the phonenumber!");
+                    toastMsgShort("전화번호가 입력되지 않았습니다!");
 
                 }
 
@@ -188,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                 } else {
-                    toastMsgLong("Enter the PhoneNumber and Message!");
+                    toastMsgLong("전화번호나 메세지가 입력되지 않았습니다!");
                 }
 
             }
@@ -401,7 +400,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MainActivity_Log", "(excelRead getRows) " + sheet.getRows());
                 mRows = sheet.getRows();
                 mColumns = sheet.getColumns();
-                if (mColumns < 5) {
+                if (mColumns < 8) {
                     for (int i = 0; i < mRows; i++) {
                         for (int j = 0; j < 5; j++) {
                             Cell cell = sheet.getCell(j, i);
@@ -411,7 +410,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 } else {
-                    toastMsgLong("문자 개수가 너무 많습니다. ");
+                    toastMsgLong("열(Column)의 문자 개수가 너무 많습니다. ");
                 }
 
 
@@ -439,24 +438,30 @@ public class MainActivity extends AppCompatActivity {
             WritableWorkbook workbook = Workbook.createWorkbook(outputStream);
             WritableSheet sheet = workbook.createSheet("example", 0);
             Label label;
-            label = new Label(0, 0, "Text1");
+            label = new Label(0, 0, "Name");
             sheet.addCell(label);
 
-            label = new Label(1, 0, "Text2");
+            label = new Label(1, 0, "PhoneNumber");
             sheet.addCell(label);
 
-            label = new Label(2, 0, "Text3");
+            label = new Label(2, 0, "Text1");
             sheet.addCell(label);
 
-            label = new Label(3, 0, "Text4");
+            label = new Label(3, 0, "Text2");
             sheet.addCell(label);
 
-            label = new Label(4, 0, "Text5");
+            label = new Label(4, 0, "Text3");
+            sheet.addCell(label);
+
+            label = new Label(5, 0, "Text4");
+            sheet.addCell(label);
+
+            label = new Label(6, 0, "Text5");
             sheet.addCell(label);
 
             workbook.write();
             workbook.close();
-            toastMsgLong("Excel file create complete!");
+            toastMsgLong("샘플 엑셀파일이 만들어 졌습니다!");
 
         } catch (IOException e) {
             e.printStackTrace();

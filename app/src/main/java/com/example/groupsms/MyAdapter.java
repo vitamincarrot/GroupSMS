@@ -20,12 +20,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView textView;
+        public TextView listName;
         public CheckBox checkBox;
 
         public MyViewHolder(View v) {
             super(v);
-            textView = v.findViewById(R.id.adapterTextView);
+            listName = v.findViewById(R.id.listName);
             checkBox = v.findViewById(R.id.checkBox);
 
 
@@ -55,7 +55,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
         }
 
-        holder.textView.setText(text);
+        holder.listName.setText(text);
         holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
