@@ -48,13 +48,14 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     /*public RecyclerView.Adapter mAdapter;
     public RecyclerView.LayoutManager layoutManager;*/
-    ArrayList<String> myDataSet = new ArrayList<>();
-    ArrayList<String> checkText = new ArrayList<>();
+    ArrayList<ItemList> myDataSet = new ArrayList<>();
+    ArrayList<ItemList> checkText = new ArrayList<>();
     Workbook workbook;
-    List<String> text1, text2, text3, text4, text5;
+    //    List<String> text1, text2, text3, text4, text5;
     private int READ_REQUEST_CODE = 43;
     private int WRITE_REQUEST_CODE = 44;
     int mRows, mColumns;
+    MyAdapter adapter;
 //    private ParcelFileDescriptor pfd;
 //    private FileOutputStream fileOutputStream;
 
@@ -75,17 +76,17 @@ public class MainActivity extends AppCompatActivity {
         readBtn = findViewById(R.id.readBtn);
         createBtn = findViewById(R.id.createBtn);
 
-        text1 = new ArrayList<>();
-        text2 = new ArrayList<>();
-        text3 = new ArrayList<>();
-        text4 = new ArrayList<>();
-        text5 = new ArrayList<>();
+//        text1 = new ArrayList<>();
+//        text2 = new ArrayList<>();
+//        text3 = new ArrayList<>();
+//        text4 = new ArrayList<>();
+//        text5 = new ArrayList<>();
 
 
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
-        final MyAdapter adapter = new MyAdapter(myDataSet);
+        adapter = new MyAdapter(myDataSet);
         recyclerView.setAdapter(adapter);
 
         checkForSmsPermission();
@@ -160,7 +161,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 if (num.length() > 0) {
-                    myDataSet.add(num.getText().toString());
+                    ItemList itemList = new ItemList();
+                    itemList.setPhoneNumber(num.getText().toString());
+                    myDataSet.add(itemList);
                     Log.d("MainActivity_Log", "(addBtn) Data add : " + myDataSet.get(0));
                     adapter.notifyDataSetChanged();
                     num.getText().clear();
@@ -181,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
                 String inputMsgText = msg.getText().toString();
                 if (myDataSet.size() > 0 && inputMsgText.length() > 0) {
                     for (int i = 0; i < myDataSet.size(); i++) {
-                        sendSMS(myDataSet.get(i), inputMsgText);
+                        sendSMS(myDataSet.get(i).getPhoneNumber(), inputMsgText);
                         toastMsgShort(myDataSet.get(i) + "\n" + inputMsgText);
 
                     }
@@ -400,18 +403,31 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MainActivity_Log", "(excelRead getRows) " + sheet.getRows());
                 mRows = sheet.getRows();
                 mColumns = sheet.getColumns();
+                ItemList itemList = new ItemList();
+                ArrayList<String> cellList = new ArrayList<>();
                 if (mColumns < 8) {
                     for (int i = 0; i < mRows; i++) {
-                        for (int j = 0; j < 5; j++) {
+                        for (int j = 0; j < 7; j++) {
                             Cell cell = sheet.getCell(j, i);
                             String temp = cell.getContents();
+                            cellList.add(j, temp);
                             Log.d("MainActivity_Log", "(excelRead getRows) " + "(" + i + "," + j + ")" + temp);
                         }
-
+                        itemList.setName(cellList.get(0));
+                        itemList.setPhoneNumber(cellList.get(1));
+                        itemList.setText1(cellList.get(2));
+                        itemList.setText2(cellList.get(3));
+                        itemList.setText3(cellList.get(4));
+                        itemList.setText4(cellList.get(5));
+                        itemList.setText5(cellList.get(6));
+                        myDataSet.add(itemList);
                     }
+                    adapter.notifyDataSetChanged();
+
                 } else {
                     toastMsgLong("열(Column)의 문자 개수가 너무 많습니다. ");
                 }
+
 
 
             } catch (IOException e) {

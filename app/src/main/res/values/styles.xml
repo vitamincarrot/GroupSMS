@@ -7,4 +7,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="ListTextSize">
+        <item name="android:textSize">15sp</item>
+    </style>
+
 </resources>

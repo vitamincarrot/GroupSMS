@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:padding="10dp">
+    android:padding="10dp"
+    >
 
     <CheckBox
         android:id="@+id/checkBox"
@@ -19,14 +20,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="박지우"
-        android:textSize="15dp"/>
+        android:textSize="@dimen/ListTextSize"/>
 
     <TextView
         android:id="@+id/listNumber"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="01042761727"
-        android:textSize="15dp"
+        android:textSize="@dimen/ListTextSize"
         android:layout_marginLeft="5dp"/>
 
     <TextView
@@ -34,7 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Text1"
-        android:textSize="15dp"
+        android:textSize="@dimen/ListTextSize"
         android:layout_marginLeft="5dp"/>
 
     <TextView
@@ -42,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Text2"
-        android:textSize="15dp"
+        android:textSize="@dimen/ListTextSize"
         android:layout_marginLeft="5dp"/>
 
     <TextView
@@ -50,7 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Text3"
-        android:textSize="15dp"
+        android:textSize="@dimen/ListTextSize"
         android:layout_marginLeft="5dp"/>
 
     <TextView
@@ -58,7 +59,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Text4"
-        android:textSize="15dp"
+        android:textSize="@dimen/ListTextSize"
         android:layout_marginLeft="5dp"/>
 
     <TextView
@@ -66,7 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Text5"
-        android:textSize="15dp"
+        android:textSize="@dimen/ListTextSize"
         android:layout_marginLeft="5dp"/>
 
 
