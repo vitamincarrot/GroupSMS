@@ -11,11 +11,13 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     private ArrayList<ItemList> mDataSet;
     public ArrayList<ItemList> checkPos = new ArrayList<>();
+
 
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
@@ -43,18 +45,22 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     }
 
 
+    @NonNull
     @Override
     public MyAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent,
                                                      int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.phonenumber_view, parent, false);
-        MyViewHolder vh = new MyViewHolder(view);
-        return vh;
+        return new MyViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
+        if (checkPos.size() == 0) {
+            holder.checkBox.setChecked(false);
+
+        }
         String name = mDataSet.get(position).getName();
         String phoneNumber = mDataSet.get(position).getPhoneNumber();
         String text1 = mDataSet.get(position).getText1();
@@ -63,10 +69,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         String text4 = mDataSet.get(position).getText4();
         String text5 = mDataSet.get(position).getText5();
 
-        if (checkPos.size() == 0) {
-            holder.checkBox.setChecked(false);
-
-        }
 
         holder.listName.setText(name);
         holder.listPhoneNumber.setText(phoneNumber);
@@ -81,14 +83,16 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                 if (mDataSet.size() > 0) {
+
                     if (isChecked) {
                         checkPos.add(mDataSet.get(position));
-                        Log.d("MyAdapter_Log", "(onBindViewHolder) Add delete data position : " + mDataSet.get(position));
-                    } else {
+                        Log.d("MyAdapter_Log", "(onBindViewHolder) Add delete data position : " + mDataSet.get(position) + ":" + position);
+                    } else if (checkPos.size() > 0){
                         checkPos.remove(mDataSet.get(position));
-                        Log.d("MyAdapter_Log", "(onBindViewHolder) Remove delete data position : " + mDataSet.get(position));
+                        Log.d("MyAdapter_Log", "(onBindViewHolder) Remove delete data position : " + mDataSet.get(position) + ":" + position);
                     }
                 }
+
 
             }
 
