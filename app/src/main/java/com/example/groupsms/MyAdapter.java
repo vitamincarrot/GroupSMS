@@ -19,6 +19,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public ArrayList<ItemList> checkPos = new ArrayList<>();
 
 
+
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
         public TextView listName, listPhoneNumber, listText1, listText2, listText3, listText4, listText5;
@@ -39,8 +40,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         }
     }
 
-    public MyAdapter(ArrayList<ItemList> myDataSet) {
-        mDataSet = myDataSet;
+    public MyAdapter(ArrayList<ItemList> myDataset) {
+        mDataSet = myDataset;
     }
 
 
@@ -56,6 +57,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
+        if (checkPos.size() == 0) {
+            holder.checkBox.setChecked(false);
+
+        }
         String name = mDataSet.get(position).getName();
         String phoneNumber = mDataSet.get(position).getPhoneNumber();
         String text1 = mDataSet.get(position).getText1();
@@ -64,10 +70,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         String text4 = mDataSet.get(position).getText4();
         String text5 = mDataSet.get(position).getText5();
 
-        if (checkPos.size() == 0) {
-            holder.checkBox.setChecked(false);
-
-        }
 
         holder.listName.setText(name);
         holder.listPhoneNumber.setText(phoneNumber);
@@ -82,14 +84,16 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
                 if (mDataSet.size() > 0) {
+
                     if (isChecked) {
                         checkPos.add(mDataSet.get(position));
-                        Log.d("MyAdapter_Log", "(onBindViewHolder) Add delete data position : " + mDataSet.get(position));
-                    } else {
+                        Log.d("MyAdapter_Log", "(onBindViewHolder) Add delete data position : " + mDataSet.get(position) + ":" + position);
+                    } else if (checkPos.size() > 0){
                         checkPos.remove(mDataSet.get(position));
-                        Log.d("MyAdapter_Log", "(onBindViewHolder) Remove delete data position : " + mDataSet.get(position));
+                        Log.d("MyAdapter_Log", "(onBindViewHolder) Remove delete data position : " + mDataSet.get(position) + ":" + position);
                     }
                 }
+
 
             }
 

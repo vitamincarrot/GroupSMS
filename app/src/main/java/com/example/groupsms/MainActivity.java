@@ -2,7 +2,6 @@ package com.example.groupsms;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -12,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.FileNotFoundException;
@@ -20,10 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -43,15 +39,15 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
     EditText num, msg;
-    Button sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1, readBtn, createBtn;
-    String inputText1, inputText2, inputText3, inputText4, inputText5;
+    Button sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1, inputButton2, inputButton3, inputButton4, inputButton5, readBtn, createBtn;
+    String inputText1 = "!$Text1$!",
+            inputText2 = "!$Text2$!",
+            inputText3 = "!$Text3$!",
+            inputText4 = "!$Text4$!",
+            inputText5 = "!$Text5$!";
     RecyclerView recyclerView;
-    /*public RecyclerView.Adapter mAdapter;
-    public RecyclerView.LayoutManager layoutManager;*/
     ArrayList<ItemList> myDataSet = new ArrayList<>();
-    ArrayList<ItemList> checkText = new ArrayList<>();
     Workbook workbook;
-    //    List<String> text1, text2, text3, text4, text5;
     private int READ_REQUEST_CODE = 43;
     private int WRITE_REQUEST_CODE = 44;
     int mRows, mColumns;
@@ -65,23 +61,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        num = findViewById(R.id.phonenumber);
-        msg = findViewById(R.id.message);
-        sendBtn = findViewById(R.id.sendbtn);
-        retryBtn = findViewById(R.id.retrybtn);
-        addBtn = findViewById(R.id.add);
-        recyclerView = findViewById(R.id.recyclerView);
-        checkDelBtn = findViewById(R.id.checkDel);
-        inputButton1 = findViewById(R.id.inputText1);
-        readBtn = findViewById(R.id.readBtn);
-        createBtn = findViewById(R.id.createBtn);
-
-//        text1 = new ArrayList<>();
-//        text2 = new ArrayList<>();
-//        text3 = new ArrayList<>();
-//        text4 = new ArrayList<>();
-//        text5 = new ArrayList<>();
-
+        allFindViewById();
 
         final RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -95,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 StartRead();
+
             }
         });
 
@@ -113,43 +94,70 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        inputButton1.setOnLongClickListener(new View.OnLongClickListener() {
+        inputButton2.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
-                Log.d("MainActivity_Log", "(changeTextBtn1) Long Clicked.");
-                final LinearLayout linear = (LinearLayout) View.inflate(MainActivity.this, R.layout.dialog_buttontextchange, null);
-
-                new AlertDialog.Builder(MainActivity.this)
-                        .setView(linear)
-                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                EditText changeBtnText1 = linear.findViewById(R.id.changeEditText1);
-                                inputText1 = changeBtnText1.getText().toString();
-                                inputButton1.setText(inputText1);
-                                dialog.dismiss();
-                            }
-                        })
-
-                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .show();
-                return true;
+            public void onClick(View v) {
+                insertSomeText(inputText2);
             }
         });
+
+        inputButton3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insertSomeText(inputText3);
+            }
+        });
+
+        inputButton4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insertSomeText(inputText4);
+            }
+        });
+
+        inputButton5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insertSomeText(inputText5);
+            }
+        });
+//        inputButton1.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//                Log.d("MainActivity_Log", "(changeTextBtn1) Long Clicked.");
+//                final LinearLayout linear = (LinearLayout) View.inflate(MainActivity.this, R.layout.dialog_buttontextchange, null);
+//
+//                new AlertDialog.Builder(MainActivity.this)
+//                        .setView(linear)
+//                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                EditText changeBtnText1 = linear.findViewById(R.id.changeEditText1);
+//                                inputText1 = changeBtnText1.getText().toString();
+//                                inputButton1.setText(inputText1);
+//                                dialog.dismiss();
+//                            }
+//                        })
+//
+//                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                dialog.dismiss();
+//                            }
+//                        })
+//                        .show();
+//                return true;
+//            }
+//        });
 
         checkDelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkText = adapter.checkPos;
-                for (int i = 0; i < checkText.size(); i++) {
-                    myDataSet.remove(checkText.get(i));
-                }
 
-                adapter.checkPos.removeAll(checkText);
+                for (int i = 0; i < adapter.checkPos.size(); i++) {
+                    myDataSet.remove(adapter.checkPos.get(i));
+                }
+                adapter.checkPos.clear();
+
                 adapter.notifyDataSetChanged();
 
             }
@@ -182,12 +190,36 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String inputMsgText = msg.getText().toString();
+
                 if (myDataSet.size() > 0 && inputMsgText.length() > 0) {
                     for (int i = 0; i < myDataSet.size(); i++) {
-                        sendSMS(myDataSet.get(i).getPhoneNumber(), inputMsgText);
-                        toastMsgShort(myDataSet.get(i) + "\n" + inputMsgText);
+                        String reMsgText = inputMsgText;
 
+                        for (int j = 0; j < 5; j++) {
+                            if (inputMsgText.contains("!$Text1$!")) {
+                                reMsgText = reMsgText.replace("!$Text1$!", myDataSet.get(i).getText1());
+                            }
+
+                            if (inputMsgText.contains("!$Text2$!")) {
+                                reMsgText = reMsgText.replace("!$Text2$!", myDataSet.get(i).getText2());
+                            }
+
+                            if (inputMsgText.contains("!$Text3$!")) {
+                                reMsgText = reMsgText.replace("!$Text3$!", myDataSet.get(i).getText3());
+                            }
+
+                            if (inputMsgText.contains("!$Text4$!")) {
+                                reMsgText = reMsgText.replace("!$Text4$!", myDataSet.get(i).getText4());
+                            }
+
+                            if (inputMsgText.contains("!$Text5$!")) {
+                                reMsgText = reMsgText.replace("!$Text5$!", myDataSet.get(i).getText5());
+                            }
+                        }
+                        sendSMS(myDataSet.get(i).getPhoneNumber(), reMsgText);
+                        toastMsgShort(myDataSet.get(i) + "\n" + reMsgText);
                     }
+
 
                 } else {
                     toastMsgLong("전화번호나 메세지가 입력되지 않았습니다!");
@@ -403,7 +435,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MainActivity_Log", "(excelRead getRows) " + sheet.getRows());
                 mRows = sheet.getRows();
                 mColumns = sheet.getColumns();
-                ItemList itemList = new ItemList();
                 ArrayList<String> cellList = new ArrayList<>();
                 if (mColumns < 8) {
                     for (int i = 0; i < mRows; i++) {
@@ -412,7 +443,10 @@ public class MainActivity extends AppCompatActivity {
                             String temp = cell.getContents();
                             cellList.add(j, temp);
                             Log.d("MainActivity_Log", "(excelRead getRows) " + "(" + i + "," + j + ")" + temp);
+
                         }
+                        ItemList itemList = new ItemList();
+
                         itemList.setName(cellList.get(0));
                         itemList.setPhoneNumber(cellList.get(1));
                         itemList.setText1(cellList.get(2));
@@ -421,13 +455,13 @@ public class MainActivity extends AppCompatActivity {
                         itemList.setText4(cellList.get(5));
                         itemList.setText5(cellList.get(6));
                         myDataSet.add(itemList);
+
                     }
                     adapter.notifyDataSetChanged();
 
                 } else {
                     toastMsgLong("열(Column)의 문자 개수가 너무 많습니다. ");
                 }
-
 
 
             } catch (IOException e) {
@@ -490,5 +524,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void allFindViewById() {
+        num = findViewById(R.id.phonenumber);
+        msg = findViewById(R.id.message);
+        sendBtn = findViewById(R.id.sendbtn);
+        retryBtn = findViewById(R.id.retrybtn);
+        addBtn = findViewById(R.id.add);
+        recyclerView = findViewById(R.id.recyclerView);
+        checkDelBtn = findViewById(R.id.checkDel);
+        inputButton1 = findViewById(R.id.inputText1);
+        inputButton2 = findViewById(R.id.inputText2);
+        inputButton3 = findViewById(R.id.inputText3);
+        inputButton4 = findViewById(R.id.inputText4);
+        inputButton5 = findViewById(R.id.inputText5);
+        readBtn = findViewById(R.id.readBtn);
+        createBtn = findViewById(R.id.createBtn);
+    }
 
 }
