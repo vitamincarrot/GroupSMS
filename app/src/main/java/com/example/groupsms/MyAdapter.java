@@ -57,7 +57,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
-    public void onBindViewHolder(@NonNull MyViewHolder holder, final int position) {
         if (checkPos.size() == 0) {
             holder.checkBox.setChecked(false);
 
