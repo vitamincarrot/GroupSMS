@@ -2,6 +2,8 @@ package com.example.groupsms;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -11,7 +13,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,11 +28,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
@@ -38,7 +42,7 @@ import jxl.write.biff.RowsExceededException;
 public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
-    EditText num, msg;
+    EditText num, msg, editText1, editText2, editText3, editText4, editText5;
     Button sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1, inputButton2, inputButton3, inputButton4, inputButton5, readBtn, createBtn;
     String inputText1 = "!$Text1$!",
             inputText2 = "!$Text2$!",
@@ -168,18 +172,52 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if (num.length() > 0) {
-                    ItemList itemList = new ItemList();
-                    itemList.setPhoneNumber(num.getText().toString());
-                    myDataSet.add(itemList);
-                    Log.d("MainActivity_Log", "(addBtn) Data add : " + myDataSet.get(0));
-                    adapter.notifyDataSetChanged();
-                    num.getText().clear();
+                final LinearLayout linear = (LinearLayout) View.inflate(MainActivity.this, R.layout.dialog_selfaddbutton, null);
+//
+                new AlertDialog.Builder(MainActivity.this)
+                        .setView(linear)
+                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                editText1 = linear.findViewById(R.id.editText1);
+                                editText2 = linear.findViewById(R.id.editText2);
+                                editText3 = linear.findViewById(R.id.editText3);
+                                editText4 = linear.findViewById(R.id.editText4);
+                                editText5 = linear.findViewById(R.id.editText5);
+                                num = linear.findViewById(R.id.phonenumber);
 
-                } else {
-                    toastMsgShort("전화번호가 입력되지 않았습니다!");
+                                if (num.length() > 0) {
+                                    ItemList itemList = new ItemList();
+                                    itemList.setPhoneNumber(num.getText().toString());
+                                    itemList.setText1(editText1.getText().toString());
+                                    itemList.setText2(editText2.getText().toString());
+                                    itemList.setText3(editText3.getText().toString());
+                                    itemList.setText4(editText4.getText().toString());
+                                    itemList.setText5(editText5.getText().toString());
 
-                }
+                                    myDataSet.add(itemList);
+                                    Log.d("MainActivity_Log", "(addBtn) Data add : " + myDataSet.get(0));
+                                    adapter.notifyDataSetChanged();
+
+                                    dialog.dismiss();
+
+                                } else {
+                                    toastMsgShort("전화번호가 입력되지 않았습니다!");
+                                    dialog.cancel();
+
+                                }
+
+
+                            }
+                        })
+
+                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .show();
+
 
             }
 
@@ -525,7 +563,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void allFindViewById() {
-        num = findViewById(R.id.phonenumber);
         msg = findViewById(R.id.message);
         sendBtn = findViewById(R.id.sendbtn);
         retryBtn = findViewById(R.id.retrybtn);

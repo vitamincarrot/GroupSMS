@@ -2,13 +2,13 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/colorCarrot</item>
+        <item name="colorPrimaryDark">@color/colorCarrotDark</item>
+        <item name="colorAccent">@color/colorCarrotLight</item>
     </style>
 
     <style name="ListTextSize">
-        <item name="android:textSize">15sp</item>
+        <item name="android:textSize">10sp</item>
     </style>
 
 </resources>

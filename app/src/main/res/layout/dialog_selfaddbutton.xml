@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:text="발송목록 추가"
+        android:background="@color/colorSecondary"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:layout_gravity="center_horizontal"
+        android:padding="20dp"
+        android:layout_marginBottom="10dp"/>
+
+
+    <EditText
+        android:id="@+id/phonenumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Phone Number"
+        android:inputType="phone"
+        android:layout_margin="10dp"
+        android:imeOptions="actionNext"
+        android:lines="1" />
+
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Text1"
+        android:layout_margin="10dp"
+        android:inputType="text"
+        android:imeOptions="actionNext"
+        android:lines="1" />
+
+    <EditText
+        android:id="@+id/editText2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Text2"
+        android:inputType="text"
+        android:layout_margin="10dp"
+        android:imeOptions="actionNext"
+        android:lines="1" />
+
+    <EditText
+        android:id="@+id/editText3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Text3"
+        android:inputType="text"
+        android:layout_margin="10dp"
+        android:imeOptions="actionNext"
+        android:lines="1" />
+
+    <EditText
+        android:id="@+id/editText4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Text4"
+        android:inputType="text"
+        android:layout_margin="10dp"
+        android:imeOptions="actionNext"
+        android:lines="1" />
+
+    <EditText
+        android:id="@+id/editText5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Text5"
+        android:inputType="text"
+        android:layout_margin="10dp"
+        android:imeOptions="actionNext"
+        android:lines="1" />
+
+
+</LinearLayout>
