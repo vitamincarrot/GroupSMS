@@ -61,6 +61,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             holder.checkBox.setChecked(false);
 
         }
+        else {
+            holder.checkBox.setChecked(true);
+        }
         String name = mDataSet.get(position).getName();
         String phoneNumber = mDataSet.get(position).getPhoneNumber();
         String text1 = mDataSet.get(position).getText1();

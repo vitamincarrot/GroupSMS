@@ -12,6 +12,8 @@ import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private int WRITE_REQUEST_CODE = 44;
     int mRows, mColumns;
     MyAdapter adapter;
+    CheckBox allCheckBox;
 //    private ParcelFileDescriptor pfd;
 //    private FileOutputStream fileOutputStream;
 
@@ -75,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         checkForSmsPermission();
 
+        //엑셀 불러오기 버튼 클릭 시
         readBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //엑셀 샘플파일 생성 버튼 클릭 시
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //치환 TEXT1 버튼 클릭 시
         inputButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //치환 TEXT2 버튼 클릭 시
         inputButton2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //치환 TEXT3 버튼 클릭 시
         inputButton3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //치환 TEXT4 버튼 클릭 시
         inputButton4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,40 +128,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //치환 TEXT5 버튼 클릭 시
         inputButton5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 insertSomeText(inputText5);
             }
         });
-//        inputButton1.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
-//                Log.d("MainActivity_Log", "(changeTextBtn1) Long Clicked.");
-//                final LinearLayout linear = (LinearLayout) View.inflate(MainActivity.this, R.layout.dialog_buttontextchange, null);
-//
-//                new AlertDialog.Builder(MainActivity.this)
-//                        .setView(linear)
-//                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                EditText changeBtnText1 = linear.findViewById(R.id.changeEditText1);
-//                                inputText1 = changeBtnText1.getText().toString();
-//                                inputButton1.setText(inputText1);
-//                                dialog.dismiss();
-//                            }
-//                        })
-//
-//                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                dialog.dismiss();
-//                            }
-//                        })
-//                        .show();
-//                return true;
-//            }
-//        });
+       /* inputButton1.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Log.d("MainActivity_Log", "(changeTextBtn1) Long Clicked.");
+                final LinearLayout linear = (LinearLayout) View.inflate(MainActivity.this, R.layout.dialog_buttontextchange, null);
 
+                new AlertDialog.Builder(MainActivity.this)
+                        .setView(linear)
+                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                EditText changeBtnText1 = linear.findViewById(R.id.changeEditText1);
+                                inputText1 = changeBtnText1.getText().toString();
+                                inputButton1.setText(inputText1);
+                                dialog.dismiss();
+                            }
+                        })
+
+                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .show();
+                return true;
+            }
+        });*/
+
+        //체크항목 삭제 버튼 클릭 시
         checkDelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -163,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 adapter.checkPos.clear();
 
                 adapter.notifyDataSetChanged();
+                allCheckBox.setChecked(false);
 
             }
         });
@@ -224,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+        //메세지 보내기 버튼 클릭 시
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -254,8 +267,16 @@ public class MainActivity extends AppCompatActivity {
                                 reMsgText = reMsgText.replace("!$Text5$!", myDataSet.get(i).getText5());
                             }
                         }
-                        sendSMS(myDataSet.get(i).getPhoneNumber(), reMsgText);
-                        toastMsgShort(myDataSet.get(i) + "\n" + reMsgText);
+
+                        if (reMsgText.length() > 0) {
+
+                            sendSMS(myDataSet.get(i).getPhoneNumber(), reMsgText);
+                            toastMsgShort(myDataSet.get(i) + "\n" + reMsgText);
+                        }
+
+                        else {
+                            toastMsgLong("전송할 메세지가 없습니다.");
+                        }
                     }
 
 
@@ -266,6 +287,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //권한허용 재시도 버튼 클릭 시
         retryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -273,7 +295,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        allCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    adapter.checkPos.addAll(myDataSet);
+                    adapter.notifyDataSetChanged();
+                }
+                else {
+                    adapter.checkPos.clear();
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+
     }
+
 
     //불러올 파일 선택창 열기
     public void StartRead() {
@@ -475,7 +512,7 @@ public class MainActivity extends AppCompatActivity {
                 mColumns = sheet.getColumns();
                 ArrayList<String> cellList = new ArrayList<>();
                 if (mColumns < 8) {
-                    for (int i = 0; i < mRows; i++) {
+                    for (int i = 1; i < mRows; i++) {
                         for (int j = 0; j < 7; j++) {
                             Cell cell = sheet.getCell(j, i);
                             String temp = cell.getContents();
@@ -562,6 +599,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //FindViewById 실행하기
     private void allFindViewById() {
         msg = findViewById(R.id.message);
         sendBtn = findViewById(R.id.sendbtn);
@@ -576,6 +614,7 @@ public class MainActivity extends AppCompatActivity {
         inputButton5 = findViewById(R.id.inputText5);
         readBtn = findViewById(R.id.readBtn);
         createBtn = findViewById(R.id.createBtn);
+        allCheckBox = findViewById(R.id.allCheck);
     }
 
 }
