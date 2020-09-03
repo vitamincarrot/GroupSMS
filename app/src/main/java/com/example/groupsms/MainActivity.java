@@ -304,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
                             if (reMsgText.length() > 0) {
 
                                 sendSMS(myDataSet.get(i).getPhoneNumber(), reMsgText);
-                                toastMsgShort(myDataSet.get(i) + "\n" + reMsgText);
+                                toastMsgShort("메세지 보내는 중... " + (i + 1) + " / " + myDataSet.size());
                             } else {
                                 toastMsgLong("전송할 메세지가 없습니다.");
                             }
