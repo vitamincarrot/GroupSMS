@@ -61,79 +61,79 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="center_horizontal"
             android:lines="1"
             android:text="이름"
-            android:textStyle="bold"
             android:textAlignment="center"
             android:textSize="@dimen/ListTextSize"
-            android:gravity="center_horizontal" />
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_weight="0.9"
+            android:gravity="center_horizontal"
             android:lines="1"
             android:text="전화번호"
-            android:textStyle="bold"
             android:textAlignment="center"
-            android:gravity="center_horizontal"
-            android:textSize="@dimen/ListTextSize" />
+            android:textSize="@dimen/ListTextSize"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_weight="1"
+            android:gravity="center_horizontal"
             android:text="Text1"
-            android:textStyle="bold"
             android:textAlignment="center"
-            android:gravity="center_horizontal"
-            android:textSize="@dimen/ListTextSize" />
+            android:textSize="@dimen/ListTextSize"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_weight="1"
+            android:gravity="center_horizontal"
             android:text="Text2"
-            android:textStyle="bold"
             android:textAlignment="center"
-            android:gravity="center_horizontal"
-            android:textSize="@dimen/ListTextSize" />
+            android:textSize="@dimen/ListTextSize"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_weight="1"
+            android:gravity="center_horizontal"
             android:text="Text3"
-            android:textStyle="bold"
             android:textAlignment="center"
-            android:gravity="center_horizontal"
-            android:textSize="@dimen/ListTextSize" />
+            android:textSize="@dimen/ListTextSize"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_weight="1"
+            android:gravity="center_horizontal"
             android:text="Text4"
-            android:textStyle="bold"
             android:textAlignment="center"
-            android:gravity="center_horizontal"
-            android:textSize="@dimen/ListTextSize" />
+            android:textSize="@dimen/ListTextSize"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_weight="1"
-            android:text="Text5"
-            android:textStyle="bold"
-            android:textAlignment="center"
             android:gravity="center_horizontal"
-            android:textSize="@dimen/ListTextSize" />
+            android:text="Text5"
+            android:textAlignment="center"
+            android:textSize="@dimen/ListTextSize"
+            android:textStyle="bold" />
     </LinearLayout>
 
 
@@ -226,7 +226,7 @@
         android:layout_height="70dp"
         android:background="@color/colorSecondary"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout5">
 
         <Button
             android:id="@+id/readBtn"
@@ -270,6 +270,30 @@
             android:background="@drawable/buttonpress"
             android:text="예제파일\n생성하기"
             android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            app:adSize="SMART_BANNER"
+            app:adUnitId="ca-app-pub-3940256099942544/6300978111"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/linearLayout"
+            app:layout_constraintStart_toStartOf="parent">
+
+        </com.google.android.gms.ads.AdView>
     </LinearLayout>
 
 

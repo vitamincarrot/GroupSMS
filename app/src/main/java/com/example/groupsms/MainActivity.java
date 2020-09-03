@@ -24,6 +24,13 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +51,7 @@ import jxl.write.biff.RowsExceededException;
 public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
-    EditText num, msg, editText1, editText2, editText3, editText4, editText5;
+    EditText num, name, msg, editText1, editText2, editText3, editText4, editText5;
     Button sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1, inputButton2, inputButton3, inputButton4, inputButton5, readBtn, createBtn;
     String inputText1 = "!$Text1$!",
             inputText2 = "!$Text2$!",
@@ -56,9 +63,15 @@ public class MainActivity extends AppCompatActivity {
     Workbook workbook;
     private int READ_REQUEST_CODE = 43;
     private int WRITE_REQUEST_CODE = 44;
-    int mRows, mColumns;
+    int mRows, mColumns, maxSend = 3;
     MyAdapter adapter;
     CheckBox allCheckBox;
+    private AdView mAdView;
+    private String adUnitId = "ca-app-pub-8572963075903678/5591060883";
+    private String adInterstitaialId = "ca-app-pub-8572963075903678/3128549075";
+    private String testUnitId = "ca-app-pub-3940256099942544/6300978111";
+    private String testInterstitaialId = "ca-app-pub-3940256099942544/1033173712";
+    private InterstitialAd mInterstitialAd;
 //    private ParcelFileDescriptor pfd;
 //    private FileOutputStream fileOutputStream;
 
@@ -67,6 +80,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+
+        AdView adView = new AdView(this);
+        adView.setAdUnitId(testUnitId);
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(testInterstitaialId);
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
 
         allFindViewById();
 
@@ -196,9 +226,11 @@ public class MainActivity extends AppCompatActivity {
                                 editText4 = linear.findViewById(R.id.editText4);
                                 editText5 = linear.findViewById(R.id.editText5);
                                 num = linear.findViewById(R.id.phonenumber);
+                                name = linear.findViewById(R.id.name);
 
                                 if (num.length() > 0) {
                                     ItemList itemList = new ItemList();
+                                    itemList.setName(name.getText().toString());
                                     itemList.setPhoneNumber(num.getText().toString());
                                     itemList.setText1(editText1.getText().toString());
                                     itemList.setText2(editText2.getText().toString());
@@ -243,45 +275,54 @@ public class MainActivity extends AppCompatActivity {
                 String inputMsgText = msg.getText().toString();
 
                 if (myDataSet.size() > 0 && inputMsgText.length() > 0) {
-                    for (int i = 0; i < myDataSet.size(); i++) {
-                        String reMsgText = inputMsgText;
+                    if (maxSend > myDataSet.size()) {
+                        for (int i = 0; i < myDataSet.size(); i++) {
+                            String reMsgText = inputMsgText;
 
-                        for (int j = 0; j < 5; j++) {
-                            if (inputMsgText.contains("!$Text1$!")) {
-                                reMsgText = reMsgText.replace("!$Text1$!", myDataSet.get(i).getText1());
+                            for (int j = 0; j < 5; j++) {
+                                if (inputMsgText.contains("!$Text1$!")) {
+                                    reMsgText = reMsgText.replace("!$Text1$!", myDataSet.get(i).getText1());
+                                }
+
+                                if (inputMsgText.contains("!$Text2$!")) {
+                                    reMsgText = reMsgText.replace("!$Text2$!", myDataSet.get(i).getText2());
+                                }
+
+                                if (inputMsgText.contains("!$Text3$!")) {
+                                    reMsgText = reMsgText.replace("!$Text3$!", myDataSet.get(i).getText3());
+                                }
+
+                                if (inputMsgText.contains("!$Text4$!")) {
+                                    reMsgText = reMsgText.replace("!$Text4$!", myDataSet.get(i).getText4());
+                                }
+
+                                if (inputMsgText.contains("!$Text5$!")) {
+                                    reMsgText = reMsgText.replace("!$Text5$!", myDataSet.get(i).getText5());
+                                }
                             }
 
-                            if (inputMsgText.contains("!$Text2$!")) {
-                                reMsgText = reMsgText.replace("!$Text2$!", myDataSet.get(i).getText2());
-                            }
+                            if (reMsgText.length() > 0) {
 
-                            if (inputMsgText.contains("!$Text3$!")) {
-                                reMsgText = reMsgText.replace("!$Text3$!", myDataSet.get(i).getText3());
-                            }
-
-                            if (inputMsgText.contains("!$Text4$!")) {
-                                reMsgText = reMsgText.replace("!$Text4$!", myDataSet.get(i).getText4());
-                            }
-
-                            if (inputMsgText.contains("!$Text5$!")) {
-                                reMsgText = reMsgText.replace("!$Text5$!", myDataSet.get(i).getText5());
+                                sendSMS(myDataSet.get(i).getPhoneNumber(), reMsgText);
+                                toastMsgShort(myDataSet.get(i) + "\n" + reMsgText);
+                            } else {
+                                toastMsgLong("전송할 메세지가 없습니다.");
                             }
                         }
 
-                        if (reMsgText.length() > 0) {
-
-                            sendSMS(myDataSet.get(i).getPhoneNumber(), reMsgText);
-                            toastMsgShort(myDataSet.get(i) + "\n" + reMsgText);
-                        }
-
-                        else {
-                            toastMsgLong("전송할 메세지가 없습니다.");
-                        }
+                    } else {
+                        toastMsgLong("발송 가능한 최대 메세지는 " + (maxSend - 1) + "개 입니다.");
                     }
 
 
                 } else {
                     toastMsgLong("전화번호나 메세지가 입력되지 않았습니다!");
+                }
+
+                if (mInterstitialAd.isLoaded()) {
+                    mInterstitialAd.show();
+                } else {
+                    toastMsgShort("The interstitial wasn't loaded yet.");
                 }
 
             }
@@ -298,14 +339,12 @@ public class MainActivity extends AppCompatActivity {
         allCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked){
+                if (isChecked) {
                     adapter.checkPos.addAll(myDataSet);
-                    adapter.notifyDataSetChanged();
-                }
-                else {
+                } else {
                     adapter.checkPos.clear();
-                    adapter.notifyDataSetChanged();
                 }
+                adapter.notifyDataSetChanged();
             }
         });
 
@@ -530,7 +569,6 @@ public class MainActivity extends AppCompatActivity {
                         itemList.setText4(cellList.get(5));
                         itemList.setText5(cellList.get(6));
                         myDataSet.add(itemList);
-
                     }
                     adapter.notifyDataSetChanged();
 
