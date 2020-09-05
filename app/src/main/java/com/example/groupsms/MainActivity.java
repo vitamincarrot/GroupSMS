@@ -24,6 +24,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
     EditText num, name, msg, editText1, editText2, editText3, editText4, editText5;
-    Button sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1, inputButton2, inputButton3, inputButton4, inputButton5, readBtn, createBtn;
+    Button helpBtn, sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1, inputButton2, inputButton3, inputButton4, inputButton5, readBtn, createBtn;
     String inputText1 = "!$Text1$!",
             inputText2 = "!$Text2$!",
             inputText3 = "!$Text3$!",
@@ -93,10 +94,20 @@ public class MainActivity extends AppCompatActivity {
         mInterstitialAd.setAdUnitId(testInterstitaialId);
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+
+            }
+        });
+
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
+        Intent intent = new Intent(getBaseContext(), HelpPopupActivity.class);
+        startActivity(intent);
 
         allFindViewById();
 
@@ -107,6 +118,14 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         checkForSmsPermission();
+
+        helpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getBaseContext(), HelpPopupActivity.class);
+                startActivity(intent);
+            }
+        });
 
         //엑셀 불러오기 버튼 클릭 시
         readBtn.setOnClickListener(new View.OnClickListener() {
@@ -653,6 +672,7 @@ public class MainActivity extends AppCompatActivity {
         readBtn = findViewById(R.id.readBtn);
         createBtn = findViewById(R.id.createBtn);
         allCheckBox = findViewById(R.id.allCheck);
+        helpBtn = findViewById(R.id.helpBtn);
     }
 
 }
