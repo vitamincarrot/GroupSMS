@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     Workbook workbook;
     private int READ_REQUEST_CODE = 43;
     private int WRITE_REQUEST_CODE = 44;
+    private int HELP_REQUEST_CODE = 45;
     int mRows, mColumns, maxSend = 3;
     MyAdapter adapter;
     CheckBox allCheckBox;
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     private String testUnitId = "ca-app-pub-3940256099942544/6300978111";
     private String testInterstitaialId = "ca-app-pub-3940256099942544/1033173712";
     private InterstitialAd mInterstitialAd;
+    Boolean helpCloseCheck;
 //    private ParcelFileDescriptor pfd;
 //    private FileOutputStream fileOutputStream;
 
@@ -106,8 +109,12 @@ public class MainActivity extends AppCompatActivity {
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
-        Intent intent = new Intent(getBaseContext(), HelpPopupActivity.class);
-        startActivity(intent);
+        loadBoolean("helpChecked");
+        if (!helpCloseCheck) {
+
+            Intent intent = new Intent(getBaseContext(), HelpPopupActivity.class);
+            startActivityForResult(intent, HELP_REQUEST_CODE);
+        }
 
         allFindViewById();
 
@@ -184,34 +191,7 @@ public class MainActivity extends AppCompatActivity {
                 insertSomeText(inputText5);
             }
         });
-       /* inputButton1.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Log.d("MainActivity_Log", "(changeTextBtn1) Long Clicked.");
-                final LinearLayout linear = (LinearLayout) View.inflate(MainActivity.this, R.layout.dialog_buttontextchange, null);
-
-                new AlertDialog.Builder(MainActivity.this)
-                        .setView(linear)
-                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                EditText changeBtnText1 = linear.findViewById(R.id.changeEditText1);
-                                inputText1 = changeBtnText1.getText().toString();
-                                inputButton1.setText(inputText1);
-                                dialog.dismiss();
-                            }
-                        })
-
-                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .show();
-                return true;
-            }
-        });*/
-
+   
         //체크항목 삭제 버튼 클릭 시
         checkDelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -453,35 +433,13 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+        } else if (requestCode == HELP_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            helpCloseCheck = data.getBooleanExtra("checked", false);
+            saveBoolean(helpCloseCheck);
+            Log.d("MainActivity_Log", "(onActivityResult_HELP_REQUEST_CODE) " + helpCloseCheck);
+
         }
     }
-
-/*    public void addText(Uri uri) {
-        try {
-            pfd = this.getContentResolver().openFileDescriptor(uri, "w");
-            Log.d("MainActivity_Log", "(addText) " + pfd);
-
-            fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
-            putString("Test!");
-            FinishRecord();
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
-
-    /*public void putString(String st) throws IOException {
-        if (fileOutputStream != null) fileOutputStream.write(st.getBytes());
-    }*/
-
-  /*  public void FinishRecord() throws IOException {
-        Toast.makeText(getApplicationContext(), "저장되었습니다.", Toast.LENGTH_LONG).show();
-        fileOutputStream.close();
-        pfd.close();
-
-    }*/
 
     //중간에 텍스트 삽입하기
     private void insertSomeText(String st) {
@@ -675,4 +633,17 @@ public class MainActivity extends AppCompatActivity {
         helpBtn = findViewById(R.id.helpBtn);
     }
 
+    //도움말 "더 이상 보지않기" 체크 저장
+    public void saveBoolean(Boolean data) {
+        SharedPreferences sharedPreferences = getSharedPreferences("saveChecked", MODE_PRIVATE);    // test 이름의 기본모드 설정
+        SharedPreferences.Editor editor = sharedPreferences.edit(); //sharedPreferences를 제어할 editor를 선언
+        editor.putBoolean("helpChecked", helpCloseCheck); // key,value 형식으로 저장
+        editor.apply();    //최종 커밋. 커밋을 해야 저장이 된다.
+    }
+
+    //도움말 "더 이상 보지않기" 체크 불러오기
+    public void loadBoolean(String key) {
+        SharedPreferences sharedPreferences = getSharedPreferences("saveChecked", MODE_PRIVATE);    // test 이름의 기본모드 설정, 만약 test key값이 있다면 해당 값을 불러옴.
+        helpCloseCheck = sharedPreferences.getBoolean(key, false);  // TextView에 SharedPreferences에 저장되어있던 값 찍기.
+    }
 }
