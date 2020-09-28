@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.groupsms">
+    package="com.vitamincarrot.groupsms">
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/groupsms_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".HelpPopupActivity"
+            android:name="com.vitamincarrot.groupsms.HelpPopupActivity"
             android:theme="@android:style/Theme.Dialog">
 
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name="com.vitamincarrot.groupsms.MainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
