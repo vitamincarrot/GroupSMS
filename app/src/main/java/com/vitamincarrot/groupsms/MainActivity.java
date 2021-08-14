@@ -1,24 +1,22 @@
-package com.vitamincarrot.groupsms;
+package com.example.groupsms;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,6 +30,8 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -53,7 +53,6 @@ import jxl.write.biff.RowsExceededException;
 public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
-    TextView editTextCount, maxSendCount;
     EditText num, name, msg, editText1, editText2, editText3, editText4, editText5;
     Button helpBtn, sendBtn, retryBtn, addBtn, checkDelBtn, inputButton1, inputButton2, inputButton3, inputButton4, inputButton5, readBtn, createBtn;
     String inputText1 = "!$Text1$!",
@@ -64,39 +63,38 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ArrayList<ItemList> myDataSet = new ArrayList<>();
     Workbook workbook;
-    final private int READ_REQUEST_CODE = 43;
-    final private int WRITE_REQUEST_CODE = 44;
-    final private int HELP_REQUEST_CODE = 45;
-    int mRows, mColumns, maxSend = 501;
+    private int READ_REQUEST_CODE = 43;
+    private int WRITE_REQUEST_CODE = 44;
+    private int HELP_REQUEST_CODE = 45;
+    int mRows, mColumns, maxSend = 3;
     MyAdapter adapter;
     CheckBox allCheckBox;
-//    private final String testUnitId = "ca-app-pub-3940256099942544/6300978111";
-//    private String testInterstitialId = "ca-app-pub-3940256099942544/1033173712";
+    private AdView mAdView;
+    private String adUnitId = "ca-app-pub-8572963075903678/5591060883";
+    private String adInterstitaialId = "ca-app-pub-8572963075903678/3128549075";
+    private String testUnitId = "ca-app-pub-3940256099942544/6300978111";
+    private String testInterstitaialId = "ca-app-pub-3940256099942544/1033173712";
     private InterstitialAd mInterstitialAd;
     Boolean helpCloseCheck;
 //    private ParcelFileDescriptor pfd;
 //    private FileOutputStream fileOutputStream;
 
 
-    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        MobileAds.initialize(this, initializationStatus -> {
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
         });
 
-        AdView mAdView = findViewById(R.id.adView);
         AdView adView = new AdView(this);
-        String adUnitId = "ca-app-pub-8572963075903678/5591060883";
-        adView.setAdUnitId(adUnitId);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-
+        adView.setAdUnitId(testUnitId);
         mInterstitialAd = new InterstitialAd(this);
-        String adInterstitialId = "ca-app-pub-8572963075903678/3128549075";
-        mInterstitialAd.setAdUnitId(adInterstitialId);
+        mInterstitialAd.setAdUnitId(testInterstitaialId);
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
         mInterstitialAd.setAdListener(new AdListener() {
@@ -106,6 +104,10 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         loadBoolean("helpChecked");
         if (!helpCloseCheck) {
@@ -124,186 +126,225 @@ public class MainActivity extends AppCompatActivity {
 
         checkForSmsPermission();
 
-        msg.addTextChangedListener(new TextWatcher() {
+        helpBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+            public void onClick(View v) {
+                Intent intent = new Intent(getBaseContext(), HelpPopupActivity.class);
+                startActivity(intent);
             }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String input = msg.getText().toString();
-                editTextCount.setText(input.length() + "/ SMS 70 글자 수");
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
-        maxSendCount.setText("최대발송 가능수량 : " + maxSend);
-
-        helpBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(getBaseContext(), HelpPopupActivity.class);
-            startActivity(intent);
         });
 
         //엑셀 불러오기 버튼 클릭 시
-        readBtn.setOnClickListener(v -> StartRead());
+        readBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StartRead();
+
+            }
+        });
 
         //엑셀 샘플파일 생성 버튼 클릭 시
-        createBtn.setOnClickListener(v -> StartWrite());
+        createBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StartWrite();
+
+            }
+        });
 
         //치환 TEXT1 버튼 클릭 시
-        inputButton1.setOnClickListener(v -> insertSomeText(inputText1));
+        inputButton1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insertSomeText(inputText1);
+            }
+        });
 
         //치환 TEXT2 버튼 클릭 시
-        inputButton2.setOnClickListener(v -> insertSomeText(inputText2));
+        inputButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insertSomeText(inputText2);
+            }
+        });
 
         //치환 TEXT3 버튼 클릭 시
-        inputButton3.setOnClickListener(v -> insertSomeText(inputText3));
+        inputButton3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insertSomeText(inputText3);
+            }
+        });
 
         //치환 TEXT4 버튼 클릭 시
-        inputButton4.setOnClickListener(v -> insertSomeText(inputText4));
+        inputButton4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insertSomeText(inputText4);
+            }
+        });
 
         //치환 TEXT5 버튼 클릭 시
-        inputButton5.setOnClickListener(v -> insertSomeText(inputText5));
+        inputButton5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                insertSomeText(inputText5);
+            }
+        });
    
         //체크항목 삭제 버튼 클릭 시
-        checkDelBtn.setOnClickListener(v -> {
+        checkDelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-            for (int i = 0; i < adapter.checkPos.size(); i++) {
-                myDataSet.remove(adapter.checkPos.get(i));
+                for (int i = 0; i < adapter.checkPos.size(); i++) {
+                    myDataSet.remove(adapter.checkPos.get(i));
+                }
+                adapter.checkPos.clear();
+
+                adapter.notifyDataSetChanged();
+                allCheckBox.setChecked(false);
+
             }
-            adapter.checkPos.clear();
-
-            adapter.notifyDataSetChanged();
-            allCheckBox.setChecked(false);
-
         });
 
         //"+"버튼 클릭시 번호 리스트 추가
-        addBtn.setOnClickListener(v -> {
+        addBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-            final LinearLayout linear = (LinearLayout) View.inflate(MainActivity.this, R.layout.dialog_selfaddbutton, null);
+                final LinearLayout linear = (LinearLayout) View.inflate(MainActivity.this, R.layout.dialog_selfaddbutton, null);
 //
-            new AlertDialog.Builder(MainActivity.this)
-                    .setView(linear)
-                    .setPositiveButton("확인", (dialog, which) -> {
-                        editText1 = linear.findViewById(R.id.editText1);
-                        editText2 = linear.findViewById(R.id.editText2);
-                        editText3 = linear.findViewById(R.id.editText3);
-                        editText4 = linear.findViewById(R.id.editText4);
-                        editText5 = linear.findViewById(R.id.editText5);
-                        num = linear.findViewById(R.id.phonenumber);
-                        name = linear.findViewById(R.id.name);
+                new AlertDialog.Builder(MainActivity.this)
+                        .setView(linear)
+                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                editText1 = linear.findViewById(R.id.editText1);
+                                editText2 = linear.findViewById(R.id.editText2);
+                                editText3 = linear.findViewById(R.id.editText3);
+                                editText4 = linear.findViewById(R.id.editText4);
+                                editText5 = linear.findViewById(R.id.editText5);
+                                num = linear.findViewById(R.id.phonenumber);
+                                name = linear.findViewById(R.id.name);
 
-                        if (num.length() > 0) {
-                            ItemList itemList = new ItemList();
-                            itemList.setName(name.getText().toString());
-                            itemList.setPhoneNumber(num.getText().toString());
-                            itemList.setText1(editText1.getText().toString());
-                            itemList.setText2(editText2.getText().toString());
-                            itemList.setText3(editText3.getText().toString());
-                            itemList.setText4(editText4.getText().toString());
-                            itemList.setText5(editText5.getText().toString());
+                                if (num.length() > 0) {
+                                    ItemList itemList = new ItemList();
+                                    itemList.setName(name.getText().toString());
+                                    itemList.setPhoneNumber(num.getText().toString());
+                                    itemList.setText1(editText1.getText().toString());
+                                    itemList.setText2(editText2.getText().toString());
+                                    itemList.setText3(editText3.getText().toString());
+                                    itemList.setText4(editText4.getText().toString());
+                                    itemList.setText5(editText5.getText().toString());
 
-                            myDataSet.add(itemList);
-                            Log.d("MainActivity_Log", "(addBtn) Data add : " + myDataSet.get(0));
-                            adapter.notifyDataSetChanged();
+                                    myDataSet.add(itemList);
+                                    Log.d("MainActivity_Log", "(addBtn) Data add : " + myDataSet.get(0));
+                                    adapter.notifyDataSetChanged();
 
-                            dialog.dismiss();
+                                    dialog.dismiss();
 
-                        } else {
-                            toastMsgShort("전화번호가 입력되지 않았습니다!");
-                            dialog.cancel();
+                                } else {
+                                    toastMsgShort("전화번호가 입력되지 않았습니다!");
+                                    dialog.cancel();
 
-                        }
+                                }
 
 
-                    })
+                            }
+                        })
 
-                    .setNegativeButton("취소", (dialog, which) -> dialog.dismiss())
-                    .show();
+                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .show();
+
+
+            }
 
 
         });
 
         //메세지 보내기 버튼 클릭 시
-        sendBtn.setOnClickListener(v -> {
-            String inputMsgText = msg.getText().toString();
+        sendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String inputMsgText = msg.getText().toString();
 
-            if (myDataSet.size() > 0 && inputMsgText.length() > 0) {
-                if (maxSend > myDataSet.size()) {
-                    for (int i = 0; i < myDataSet.size(); i++) {
-                        String reMsgText = inputMsgText;
+                if (myDataSet.size() > 0 && inputMsgText.length() > 0) {
+                    if (maxSend > myDataSet.size()) {
+                        for (int i = 0; i < myDataSet.size(); i++) {
+                            String reMsgText = inputMsgText;
 
-                        for (int j = 0; j < 5; j++) {
-                            if (inputMsgText.contains("!$Text1$!")) {
-                                reMsgText = reMsgText.replace("!$Text1$!", myDataSet.get(i).getText1());
+                            for (int j = 0; j < 5; j++) {
+                                if (inputMsgText.contains("!$Text1$!")) {
+                                    reMsgText = reMsgText.replace("!$Text1$!", myDataSet.get(i).getText1());
+                                }
+
+                                if (inputMsgText.contains("!$Text2$!")) {
+                                    reMsgText = reMsgText.replace("!$Text2$!", myDataSet.get(i).getText2());
+                                }
+
+                                if (inputMsgText.contains("!$Text3$!")) {
+                                    reMsgText = reMsgText.replace("!$Text3$!", myDataSet.get(i).getText3());
+                                }
+
+                                if (inputMsgText.contains("!$Text4$!")) {
+                                    reMsgText = reMsgText.replace("!$Text4$!", myDataSet.get(i).getText4());
+                                }
+
+                                if (inputMsgText.contains("!$Text5$!")) {
+                                    reMsgText = reMsgText.replace("!$Text5$!", myDataSet.get(i).getText5());
+                                }
                             }
 
-                            if (inputMsgText.contains("!$Text2$!")) {
-                                reMsgText = reMsgText.replace("!$Text2$!", myDataSet.get(i).getText2());
-                            }
+                            if (reMsgText.length() > 0) {
 
-                            if (inputMsgText.contains("!$Text3$!")) {
-                                reMsgText = reMsgText.replace("!$Text3$!", myDataSet.get(i).getText3());
-                            }
-
-                            if (inputMsgText.contains("!$Text4$!")) {
-                                reMsgText = reMsgText.replace("!$Text4$!", myDataSet.get(i).getText4());
-                            }
-
-                            if (inputMsgText.contains("!$Text5$!")) {
-                                reMsgText = reMsgText.replace("!$Text5$!", myDataSet.get(i).getText5());
-                            }
-                        }
-
-                        if (reMsgText.length() > 0) {
-                            if (reMsgText.length() < 71) {
                                 sendSMS(myDataSet.get(i).getPhoneNumber(), reMsgText);
-                                toastMsgShort("SMS메세지 보내는 중... " + (i + 1) + " / " + myDataSet.size());
+                                toastMsgShort("메세지 보내는 중... " + (i + 1) + " / " + myDataSet.size());
                             } else {
-                                sendLMS(myDataSet.get(i).getPhoneNumber(), reMsgText);
-                                toastMsgShort("LMS메세지 보내는 중... " + (i + 1) + " / " + myDataSet.size());
+                                toastMsgLong("전송할 메세지가 없습니다.");
                             }
-
-
-                        } else {
-                            toastMsgLong("전송할 메세지가 없습니다.");
                         }
+
+                    } else {
+                        toastMsgLong("발송 가능한 최대 메세지는 " + (maxSend - 1) + "개 입니다.");
                     }
 
+
                 } else {
-                    toastMsgLong("발송 가능한 최대 메세지는 " + (maxSend - 1) + "개 입니다.");
+                    toastMsgLong("전화번호나 메세지가 입력되지 않았습니다!");
                 }
 
+                if (mInterstitialAd.isLoaded()) {
+                    mInterstitialAd.show();
+                } else {
+                    toastMsgShort("The interstitial wasn't loaded yet.");
+                }
 
-            } else {
-                toastMsgLong("전화번호나 메세지가 입력되지 않았습니다!");
             }
-
-            if (mInterstitialAd.isLoaded()) {
-                mInterstitialAd.show();
-            } else {
-                toastMsgShort("The interstitial wasn't loaded yet.");
-            }
-
         });
 
         //권한허용 재시도 버튼 클릭 시
-        retryBtn.setOnClickListener(v -> checkForSmsPermission());
-
-        allCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                adapter.checkPos.addAll(myDataSet);
-            } else {
-                adapter.checkPos.clear();
+        retryBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkForSmsPermission();
             }
-            adapter.notifyDataSetChanged();
+        });
+
+        allCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    adapter.checkPos.addAll(myDataSet);
+                } else {
+                    adapter.checkPos.clear();
+                }
+                adapter.notifyDataSetChanged();
+            }
         });
 
     }
@@ -394,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
 
         } else if (requestCode == HELP_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             helpCloseCheck = data.getBooleanExtra("checked", false);
-            saveBoolean();
+            saveBoolean(helpCloseCheck);
             Log.d("MainActivity_Log", "(onActivityResult_HELP_REQUEST_CODE) " + helpCloseCheck);
 
         }
@@ -407,18 +448,10 @@ public class MainActivity extends AppCompatActivity {
         msg.getText().replace(Math.min(start, end), Math.max(start, end), st);
     }
 
-    //SMS 메시지 보내기
+    //SMS 메세지 보내기
     private void sendSMS(String phoneNum, String message) {
         SmsManager sms = SmsManager.getDefault();
         sms.sendTextMessage(phoneNum, null, message, null, null);
-    }
-
-    //LMS 메시지 보내기
-    private void sendLMS(String phoneNum, String message){
-        SmsManager lms = SmsManager.getDefault();
-        ArrayList<String> partMessage = lms.divideMessage((message));
-        lms.sendMultipartTextMessage(phoneNum,null,partMessage,null,null);
-
     }
 
     //SMS 보내기 권한 허용 했는지 확인
@@ -426,7 +459,7 @@ public class MainActivity extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.SEND_SMS) !=
                 PackageManager.PERMISSION_GRANTED) {
-            Log.d("MainActivity_Log", "(checkForSmsPermission) Don't granted!");
+            Log.d("MainActivity_Log", "(checkForSmsPermission) Dont grented!");
             // Permission not yet granted. Use requestPermissions().
             // MY_PERMISSIONS_REQUEST_SEND_SMS is an
             // app-defined int constant. The callback method gets the
@@ -439,7 +472,7 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
             // Permission already granted. Enable the SMS button.
-            Log.d("MainActivity_Log", "(checkForSmsPermission) Granted!");
+            Log.d("MainActivity_Log", "(checkForSmsPermission) Grented!");
             Log.d("MainActivity_Log", "(checkForSmsPermission) " + Manifest.permission.SEND_SMS);
             enableSmsButton();
         }
@@ -483,7 +516,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // 엑셀파일 불러오기
-    @SuppressLint("NotifyDataSetChanged")
     private void excelRead(InputStream file) {
         WorkbookSettings ws = new WorkbookSettings();
         ws.setGCDisabled(true);
@@ -599,21 +631,19 @@ public class MainActivity extends AppCompatActivity {
         createBtn = findViewById(R.id.createBtn);
         allCheckBox = findViewById(R.id.allCheck);
         helpBtn = findViewById(R.id.helpBtn);
-        editTextCount = findViewById(R.id.editTextCount);
-        maxSendCount = findViewById(R.id.maxSendCount);
     }
 
     //도움말 "더 이상 보지않기" 체크 저장
-    public void saveBoolean() {
+    public void saveBoolean(Boolean data) {
         SharedPreferences sharedPreferences = getSharedPreferences("saveChecked", MODE_PRIVATE);    // test 이름의 기본모드 설정
-        SharedPreferences.Editor editor = sharedPreferences.edit(); //sharedPreferences 를 제어할 editor 를 선언
+        SharedPreferences.Editor editor = sharedPreferences.edit(); //sharedPreferences를 제어할 editor를 선언
         editor.putBoolean("helpChecked", helpCloseCheck); // key,value 형식으로 저장
         editor.apply();    //최종 커밋. 커밋을 해야 저장이 된다.
     }
 
     //도움말 "더 이상 보지않기" 체크 불러오기
     public void loadBoolean(String key) {
-        SharedPreferences sharedPreferences = getSharedPreferences("saveChecked", MODE_PRIVATE);    // test 이름의 기본모드 설정, 만약 test key 값이 있다면 해당 값을 불러옴.
-        helpCloseCheck = sharedPreferences.getBoolean(key, false);  // TextView 에 SharedPreferences 에 저장되어있던 값 찍기.
+        SharedPreferences sharedPreferences = getSharedPreferences("saveChecked", MODE_PRIVATE);    // test 이름의 기본모드 설정, 만약 test key값이 있다면 해당 값을 불러옴.
+        helpCloseCheck = sharedPreferences.getBoolean(key, false);  // TextView에 SharedPreferences에 저장되어있던 값 찍기.
     }
 }
